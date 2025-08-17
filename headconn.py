@@ -4,6 +4,9 @@ import json
 from rembg import remove
 from typing import Literal
 from dotenv import load_dotenv
+from wand.image import Image
+from wand.display import display
+from wand.color import Color
 
 from xai_sdk import Client
 from xai_sdk.chat import user, system, image, tool, tool_result
@@ -30,6 +33,27 @@ def remove_bg(serial_number: str):
 
   #return encode_image(bgr_image_path)
 
+def resize_image(serial_number: str, width: str, height: str):
+  if serial_number == "1":
+    image_path = 'docs/image_1.jpg'
+    rs_image_path = 'docs/rs_image_1.jpg'
+  elif serial_number == "2":
+    image_path = 'docs/image_2.jpeg'
+    rs_image_path = 'docs/rs_image_2.jpeg'
+  else:
+    return "false"
+
+  w_scale = (int(width[:-1]) / 100)
+  h_scale = (int(height[:-1]) / 100)
+
+  with Image(filename=image_path) as img:
+    img.background_color = Color('transparent')
+    img.resize(int(img.width * w_scale), int(img.height * h_scale))
+    img.save(filename=rs_image_path)
+
+  return "true"
+
+
 tool_definitions = [
   tool(
     name="remove_bg",
@@ -45,10 +69,34 @@ tool_definitions = [
       "required": ["serial_number"],
     },
   ),
+
+  tool(
+    name="resize_image",
+    description="Resize a given image",
+    parameters={
+      "type": "object",
+      "properties": {
+        "serial_number": {
+          "type": "string",
+          "description": "The serial number of the image",
+        },
+        "width": {
+          "type": "string",
+          "description": "The desired width of the image",
+        },
+        "height": {
+          "type": "string",
+          "description": "The desired height of the image",
+        }       
+      },
+      "required": ["serial_number", "width", "height"],
+    },
+  ),  
 ]
 
 tools_map = {
     "remove_bg": remove_bg,
+    "resize_image": resize_image,
 }
 
 load_dotenv()
@@ -82,7 +130,7 @@ chat = client.chat.create(
 
 chat.append(
     user(
-        "Remove the background from these images.",
+        "Resize the two images to half their original size.",
         image(image_url=f"data:image/jpeg;base64,{first_image_b64}", detail="low"),
         image(image_url=f"data:image/jpeg;base64,{second_image_b64}", detail="low"),
     )
