@@ -1,15 +1,61 @@
 import os
 import base64
+import json
+from rembg import remove
+from typing import Literal
 from dotenv import load_dotenv
 
 from xai_sdk import Client
-from xai_sdk.chat import user, system, image
+from xai_sdk.chat import user, system, image, tool, tool_result
+
+def remove_bg(serial_number: str):
+
+  if serial_number == "1":
+    image_path = 'docs/image_1.jpg'
+    bgr_image_path = 'docs/bgr_image_1.jpg'
+  elif serial_number == "2":
+    image_path = 'docs/image_2.jpeg'
+    bgr_image_path = 'docs/bgr_image_2.jpeg'
+  else:
+    return "false"
+
+  with open(image_path, 'rb') as i:
+    with open(bgr_image_path, 'wb') as o:
+      image_data = i.read()
+      bgr_image_data = remove(image_data)
+      o.write(bgr_image_data)
+      print(f"Removed bg")
+
+  return "true"
+
+  #return encode_image(bgr_image_path)
+
+tool_definitions = [
+  tool(
+    name="remove_bg",
+    description="Removes the background in a given image",
+    parameters={
+      "type": "object",
+      "properties": {
+        "serial_number": {
+          "type": "string",
+          "description": "The serial number of the image",
+        }
+      },
+      "required": ["serial_number"],
+    },
+  ),
+]
+
+tools_map = {
+    "remove_bg": remove_bg,
+}
 
 load_dotenv()
 
 client = Client(
   api_key=os.getenv("XAI_API_KEY"),
-  timeout=3600,
+  timeout=64000,
 )
 
 def encode_image(image_path):
@@ -18,30 +64,47 @@ def encode_image(image_path):
 
   return encoded_string
 
-base64_image = encode_image('docs/ron-and-harry-in-the-flying-car.jpg')
+first_image_b64 = encode_image('docs/image_1.jpg')
+second_image_b64 = encode_image('docs/image_2.jpeg')
 
 with open('system_prompt.md', 'r', encoding='utf-8') as file:
   system_prompt = file.read()
 
-chat = client.chat.create(model="grok-4")
+
+chat = client.chat.create(
+    model="grok-4",
+    tools=tool_definitions,
+    tool_choice="auto",
+)
+
 # chat.append(system(system_prompt))
 # chat.append(user("Create a short script about Elon Musk and Harry Potter."))
 
 chat.append(
     user(
-        "What's in this image?",
-        image(image_url=f"data:image/jpeg;base64,{base64_image}", detail="low"),
+        "Remove the background from these images.",
+        image(image_url=f"data:image/jpeg;base64,{first_image_b64}", detail="low"),
+        image(image_url=f"data:image/jpeg;base64,{second_image_b64}", detail="low"),
     )
 )
 
 response = chat.sample()
-print(response.content)
-print(response.usage)
+print(f"Response:{response.content}")
+print(f"Tool calls:{response.tool_calls}")
+print(f"Usage: {response.usage}")
 
-# completion_tokens: 509
-# prompt_tokens: 269
-# total_tokens: 980
-# prompt_text_tokens: 13
-# prompt_image_tokens: 256
-# reasoning_tokens: 202
-# cached_prompt_text_tokens: 2
+if response.tool_calls:
+  for tool_call in response.tool_calls:
+
+    function_name = tool_call.function.name
+    function_args = json.loads(tool_call.function.arguments)
+
+    result = tools_map[function_name](**function_args)
+
+    if function_name == "remove_bg":
+      result = image(image_url=f"data:image/jpeg;base64,{result}", detail="low")
+
+    #chat.append(tool_result(result))
+
+# response = chat.sample()
+# print(response.content)
