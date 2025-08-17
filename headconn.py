@@ -15,12 +15,12 @@ def remove_bg(serial_number: str):
 
   if serial_number == "1":
     image_path = 'docs/image_1.jpg'
-    bgr_image_path = 'docs/bgr_image_1.jpg'
+    bgr_image_path = 'docs/image_1_1.jpg'
   elif serial_number == "2":
     image_path = 'docs/image_2.jpeg'
-    bgr_image_path = 'docs/bgr_image_2.jpeg'
+    bgr_image_path = 'docs/image_2_1.jpeg'
   else:
-    return "false"
+    return "Failed to remove background"
 
   with open(image_path, 'rb') as i:
     with open(bgr_image_path, 'wb') as o:
@@ -28,29 +28,29 @@ def remove_bg(serial_number: str):
       bgr_image_data = remove(image_data)
       o.write(bgr_image_data)
 
-  return "true"
+  return "Removed background successfully"
 
   #return encode_image(bgr_image_path)
 
 def resize_image(serial_number: str, width: str, height: str):
   if serial_number == "1":
-    image_path = 'docs/image_1.jpg'
-    rs_image_path = 'docs/rs_image_1.jpg'
+    image_path = 'docs/image_1_1.jpg'
+    rs_image_path = 'docs/image_1_2.jpg'
   elif serial_number == "2":
-    image_path = 'docs/image_2.jpeg'
-    rs_image_path = 'docs/rs_image_2.jpeg'
+    image_path = 'docs/image_2_1.jpeg'
+    rs_image_path = 'docs/image_2_2.jpeg'
   else:
-    return "false"
+    return "Failed to resize"
 
-  w_scale = (int(width[:-1]) / 100)
-  h_scale = (int(height[:-1]) / 100)
+  w_scale = (int(width) / 100)
+  h_scale = (int(height) / 100)
 
   with Image(filename=image_path) as img:
     img.background_color = Color('transparent')
     img.resize(int(img.width * w_scale), int(img.height * h_scale))
     img.save(filename=rs_image_path)
 
-  return "true"
+  return "Resize successful"
 
 def rotate_image(serial_number: str, degree: str):
   if serial_number == "1":
@@ -60,14 +60,14 @@ def rotate_image(serial_number: str, degree: str):
     image_path = 'docs/image_2.jpeg'
     ro_image_path = 'docs/ro_image_2.jpeg'
   else:
-    return "false"
+    return "Failed to rotate"
 
   with Image(filename=image_path) as img:
     img.background_color = Color('transparent')
     img.rotate(int(degree))
     img.save(filename=ro_image_path)
 
-  return "true"
+  return "Rotated successfully"
 
 def shear_image(serial_number: str, x: str, y: str):
   if serial_number == "1":
@@ -77,14 +77,14 @@ def shear_image(serial_number: str, x: str, y: str):
     image_path = 'docs/image_2.jpeg'
     sh_image_path = 'docs/sh_image_2.jpeg'
   else:
-    return "false"
+    return "Failed to shear image"
 
   with Image(filename=image_path) as img:
     img.background_color = Color('transparent')
     img.shear(background='none', x=float(x), y=float(y))
     img.save(filename=sh_image_path)
 
-  return "true"
+  return "Image shear successful"
 
 
 tool_definitions = [
@@ -115,11 +115,11 @@ tool_definitions = [
         },
         "width": {
           "type": "string",
-          "description": "The desired width of the image",
+          "description": "The desired width of the image in percentage",
         },
         "height": {
           "type": "string",
-          "description": "The desired height of the image",
+          "description": "The desired height of the image in percentage",
         }       
       },
       "required": ["serial_number", "width", "height"],
@@ -202,12 +202,12 @@ chat = client.chat.create(
     tool_choice="auto",
 )
 
-# chat.append(system(system_prompt))
+chat.append(system("You will be provided with two images, the first one will be serial number 1 and the second one will be serial number 2"))
 # chat.append(user("Create a short script about Elon Musk and Harry Potter."))
 
 chat.append(
     user(
-        "Shear the two images by 10.0 on the x-axis and 20.0 on the y-axis",
+        "Remove the background in the image and then resize the image to half its original size",
         image(image_url=f"data:image/jpeg;base64,{first_image_b64}", detail="low"),
         image(image_url=f"data:image/jpeg;base64,{second_image_b64}", detail="low"),
     )
@@ -226,10 +226,12 @@ if response.tool_calls:
 
     result = tools_map[function_name](**function_args)
 
-    if function_name == "remove_bg":
-      result = image(image_url=f"data:image/jpeg;base64,{result}", detail="low")
+    #if function_name == "remove_bg":
+    #  result = image(image_url=f"data:image/jpeg;base64,{result}", detail="low")
 
     #chat.append(tool_result(result))
 
 # response = chat.sample()
-# print(response.content)
+# print(f"Response:{response.content}")
+# print(f"Tool calls:{response.tool_calls}")
+# print(f"Usage: {response.usage}")
