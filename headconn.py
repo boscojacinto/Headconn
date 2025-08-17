@@ -69,6 +69,23 @@ def rotate_image(serial_number: str, degree: str):
 
   return "true"
 
+def shear_image(serial_number: str, x: str, y: str):
+  if serial_number == "1":
+    image_path = 'docs/image_1.jpg'
+    sh_image_path = 'docs/sh_image_1.jpg'
+  elif serial_number == "2":
+    image_path = 'docs/image_2.jpeg'
+    sh_image_path = 'docs/sh_image_2.jpeg'
+  else:
+    return "false"
+
+  with Image(filename=image_path) as img:
+    img.background_color = Color('transparent')
+    img.shear(background='none', x=float(x), y=float(y))
+    img.save(filename=sh_image_path)
+
+  return "true"
+
 
 tool_definitions = [
   tool(
@@ -127,12 +144,36 @@ tool_definitions = [
       "required": ["serial_number", "degree"],
     },
   ),
+
+  tool(
+    name="shear_image",
+    description="Shear a given image along the x and y axis",
+    parameters={
+      "type": "object",
+      "properties": {
+        "serial_number": {
+          "type": "string",
+          "description": "The serial number of the image",
+        },
+        "x": {
+          "type": "string",
+          "description": "The amount of shear on the x-axis in decimals",
+        },
+        "y": {
+          "type": "string",
+          "description": "The amount of shear on the y-axis in decimals",
+        },        
+      },
+      "required": ["serial_number", "x", "y"],
+    },
+  ),  
 ]
 
 tools_map = {
     "remove_bg": remove_bg,
     "resize_image": resize_image,
     "rotate_image": rotate_image,
+    "shear_image": shear_image,
 }
 
 load_dotenv()
@@ -166,7 +207,7 @@ chat = client.chat.create(
 
 chat.append(
     user(
-        "Rotate the two images by 45 degrees anit-clockwise",
+        "Shear the two images by 10.0 on the x-axis and 20.0 on the y-axis",
         image(image_url=f"data:image/jpeg;base64,{first_image_b64}", detail="low"),
         image(image_url=f"data:image/jpeg;base64,{second_image_b64}", detail="low"),
     )
