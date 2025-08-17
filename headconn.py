@@ -27,7 +27,6 @@ def remove_bg(serial_number: str):
       image_data = i.read()
       bgr_image_data = remove(image_data)
       o.write(bgr_image_data)
-      print(f"Removed bg")
 
   return "true"
 
@@ -50,6 +49,23 @@ def resize_image(serial_number: str, width: str, height: str):
     img.background_color = Color('transparent')
     img.resize(int(img.width * w_scale), int(img.height * h_scale))
     img.save(filename=rs_image_path)
+
+  return "true"
+
+def rotate_image(serial_number: str, degree: str):
+  if serial_number == "1":
+    image_path = 'docs/image_1.jpg'
+    ro_image_path = 'docs/ro_image_1.jpg'
+  elif serial_number == "2":
+    image_path = 'docs/image_2.jpeg'
+    ro_image_path = 'docs/ro_image_2.jpeg'
+  else:
+    return "false"
+
+  with Image(filename=image_path) as img:
+    img.background_color = Color('transparent')
+    img.rotate(int(degree))
+    img.save(filename=ro_image_path)
 
   return "true"
 
@@ -91,12 +107,32 @@ tool_definitions = [
       },
       "required": ["serial_number", "width", "height"],
     },
-  ),  
+  ),
+
+  tool(
+    name="rotate_image",
+    description="Rotate a given image",
+    parameters={
+      "type": "object",
+      "properties": {
+        "serial_number": {
+          "type": "string",
+          "description": "The serial number of the image",
+        },
+        "degree": {
+          "type": "string",
+          "description": "The desired rotation in degrees",
+        }
+      },
+      "required": ["serial_number", "degree"],
+    },
+  ),
 ]
 
 tools_map = {
     "remove_bg": remove_bg,
     "resize_image": resize_image,
+    "rotate_image": rotate_image,
 }
 
 load_dotenv()
@@ -130,7 +166,7 @@ chat = client.chat.create(
 
 chat.append(
     user(
-        "Resize the two images to half their original size.",
+        "Rotate the two images by 45 degrees anit-clockwise",
         image(image_url=f"data:image/jpeg;base64,{first_image_b64}", detail="low"),
         image(image_url=f"data:image/jpeg;base64,{second_image_b64}", detail="low"),
     )
