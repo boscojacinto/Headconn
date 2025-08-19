@@ -11,7 +11,7 @@ def remove_bg(id: str):
   image_id = "_".join(id.split("_")[:-1]) 
   print(f"remove_bg(image_id):{image_id}")
 
-  image_path = f'tmp/{image_id}.jpg'
+  image_path = f'tmp/{image_id}.png'
 
   with open(image_path, 'rb') as i:
     image_data = i.read()
@@ -26,7 +26,7 @@ def resize_image(id: str, width: str, height: str):
   image_id = "_".join(id.split("_")[:-1]) 
   print(f"resize_image(image_id):{image_id}")
 
-  image_path = f'tmp/{image_id}.jpg'
+  image_path = f'tmp/{image_id}.png'
 
   w_scale = (int(width) / 100)
   h_scale = (int(height) / 100)
@@ -42,6 +42,8 @@ def rotate_image(id: str, degree: str):
   image_id = "_".join(id.split("_")[:-1]) 
   print(f"rotate_image(image_id):{image_id}")
 
+  image_path = f'tmp/{image_id}.png'
+
   with Image(filename=image_path) as img:
     img.background_color = Color('transparent')
     img.rotate(int(degree))
@@ -52,6 +54,8 @@ def rotate_image(id: str, degree: str):
 def shear_image(id: str, x: str, y: str):
   image_id = "_".join(id.split("_")[:-1]) 
   print(f"shear_image(image_id):{image_id}")
+
+  image_path = f'tmp/{image_id}.png'
 
   with Image(filename=image_path) as img:
     img.background_color = Color('transparent')
