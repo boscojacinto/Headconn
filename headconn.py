@@ -1,19 +1,24 @@
 import os
 import json
-import shutil
+import time
 from pathlib import Path
 from typing import Literal
 from dotenv import load_dotenv
-from tools.image_tool import remove_bg, resize_image, rotate_image, shear_image, encode_image, tool_definitions 
-
+from tools.image_tool import (
+  remove_bg,
+  resize_image,
+  rotate_image,
+  shear_image,
+  composite,
+  encode_image,
+  prepare_images,
+  tool_definitions 
+)
 from xai_sdk import Client
 from xai_sdk.chat import user, system, image, tool, tool_result
 
 def create_workdir():
   os.makedirs('tmp', exist_ok=True)
-
-  shutil.copy('docs/image_1.jpg', 'tmp/1.jpg')
-  shutil.copy('docs/image_2.jpg', 'tmp/2.jpg')
 
   return Path('tmp')
 
@@ -24,6 +29,7 @@ tools_map = {
     "resize_image": resize_image,
     "rotate_image": rotate_image,
     "shear_image": shear_image,
+    "composite": composite,
 }
 
 work_dir = create_workdir()
@@ -37,10 +43,11 @@ chat = client.chat.create(model="grok-4", tools=tool_definitions,
                           tool_choice="auto")
 
 chat.append(system(system_prompt))
-# chat.append(user("Create a short script about Elon Musk and Harry Potter."))
 
-first_image_b64 = encode_image(str(Path(work_dir) / '1' / 'image.jpg'))
-second_image_b64 = encode_image(str(Path(work_dir) / '2' / 'image.jpg'))
+prepare_images()
+
+first_image_b64 = encode_image(str(Path(work_dir) / '1.png'))
+second_image_b64 = encode_image(str(Path(work_dir) / '2.png'))
 
 chat.append(
     user(
@@ -51,18 +58,61 @@ chat.append(
 )
 
 response = chat.sample()
-print(f"Response:{response.content}")
-print(f"Tool calls:{response.tool_calls}")
-print(f"Usage:{response.usage}")
 
-#chat.append(response)
+chat.append(response)
+image_1_id = "1"
+image_2_id = "2"
+finetune_inst = ""
 
-if response.tool_calls:
-  for tool_call in response.tool_calls:
+while(True):
+  print(f"Response:{response.content}")
+  print(f"Tool calls:{response.tool_calls}")
+  print(f"Usage:{response.usage}")
 
-    function_name = tool_call.function.name
-    function_args = json.loads(tool_call.function.arguments)
-    function_args['id'] = f"{function_args['id']}_{tool_call.id.split("_")[1]}"
-    result = tools_map[function_name](**function_args)
+  if response.tool_calls:
+    for tool_call in response.tool_calls:
 
-    #chat.append(tool_result(result))
+      function_name = tool_call.function.name
+      function_args = json.loads(tool_call.function.arguments)
+
+
+      if function_name == "composite":
+
+        if function_args['bg_id'] == "1" and function_args['fg_id'] == "2":
+          function_args['bg_id'] = image_1_id
+          function_args['fg_id'] = image_2_id
+          function_args['id'] = tool_call.id.split("_")[1]
+        elif function_args['bg_id'] == "2" and function_args['fg_id'] == "1":
+          function_args['bg_id'] = image_2_id
+          function_args['fg_id'] = image_1_id
+          function_args['id'] = tool_call.id.split("_")[1]
+
+      else:
+
+        if function_args['id'] == "1":
+          image_id = "_".join([image_1_id, tool_call.id.split("_")[1]])
+          image_1_id = image_id
+
+        elif function_args['id'] == "2":
+          image_id = "_".join([image_2_id, tool_call.id.split("_")[1]])
+          image_2_id = image_id
+        
+        function_args['id'] = image_id
+
+      result = tools_map[function_name](**function_args)
+      print(f"Result:{result}")
+
+      if function_name == "composite":
+        finetune_inst = input("Enter any finetuning instructions")
+        if finetune_inst != "":
+          chat.append(user(finetune_inst))
+        else:
+          exit()
+      else:
+        chat.append(tool_result(result))
+
+    time.sleep(1)
+
+    response = chat.sample()
+  else:
+    break
