@@ -54,6 +54,7 @@ chat.append(
         "`{ \"first_image\": \"1\", \"second_image\": \"2\"}`",
         image(image_url=f"data:image/jpeg;base64,{first_image_b64}", detail="low"),
         image(image_url=f"data:image/jpeg;base64,{second_image_b64}", detail="low"),
+        "Superimpose harry potter and ron from the first image onto the windscreen of the tesla in the second image."
     )
 )
 
@@ -63,6 +64,7 @@ chat.append(response)
 image_1_id = "1"
 image_2_id = "2"
 finetune_inst = ""
+composite_done = False
 
 while(True):
   print(f"Response:{response.content}")
@@ -103,15 +105,22 @@ while(True):
       print(f"Result:{result}")
 
       if function_name == "composite":
-        finetune_inst = input("Enter any finetuning instructions")
-        if finetune_inst != "":
-          chat.append(user(finetune_inst))
-        else:
-          exit()
+        composite_done = True
+        break
       else:
         chat.append(tool_result(result))
 
     time.sleep(1)
+    if composite_done == True:
+      composite_done = False
+      finetune_inst = input("Enter any finetuning instructions")
+      if finetune_inst != "":
+        image_1_id = "1"
+        image_2_id = "2"
+        chat.append(user(finetune_inst))
+        finetune_inst = ""                
+      else:
+        exit()
 
     response = chat.sample()
   else:

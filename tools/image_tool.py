@@ -1,3 +1,4 @@
+import json
 import base64
 import shutil
 from rembg import remove
@@ -23,7 +24,11 @@ def remove_bg(id: str):
   with open(f'tmp/{id}.png', 'wb') as o:
     o.write(bgr_image_data)
 
-  return "Removed background successfully"
+  with Image(filename=f'tmp/{id}.png') as img:
+    img.background_color = Color('transparent')
+    bgr_image_size = {'state': "Removed background successfully"}
+
+  return json.dumps(bgr_image_size)
 
 def resize_image(id: str, width: str, height: str):
   image_id = "_".join(id.split("_")[:-1]) 
@@ -31,15 +36,16 @@ def resize_image(id: str, width: str, height: str):
 
   image_path = f'tmp/{image_id}.png'
 
-  w_scale = (int(width) / 100)
-  h_scale = (int(height) / 100)
+  w_scale = (int(float(width)) / 100)
+  h_scale = (int(float(height)) / 100)
 
   with Image(filename=image_path) as img:
     img.background_color = Color('transparent')
     img.resize(int(img.width * w_scale), int(img.height * h_scale))
     img.save(filename=f'tmp/{id}.png')
+    rs_image_size = {'state': "Resized image successfully"}
 
-  return "Resized image successfully"
+  return json.dumps(rs_image_size)
 
 def rotate_image(id: str, degree: str):
   image_id = "_".join(id.split("_")[:-1]) 
@@ -51,8 +57,9 @@ def rotate_image(id: str, degree: str):
     img.background_color = Color('transparent')
     img.rotate(int(degree))
     img.save(filename=f'tmp/{id}.png')
+    rt_image_size = {'state': "Rotated image successfully"}
 
-  return "Rotated image successfully"
+  return json.dumps(rt_image_size)
 
 def shear_image(id: str, x: str, y: str):
   image_id = "_".join(id.split("_")[:-1]) 
@@ -64,8 +71,9 @@ def shear_image(id: str, x: str, y: str):
     img.background_color = Color('transparent')
     img.shear(background='none', x=float(x), y=float(y))
     img.save(filename=f'tmp/{id}.png')
+    sh_image_size = {'state': "Sheared image successfully"}
 
-  return "Sheared image successfully"
+  return json.dumps(sh_image_size)
 
 def composite(bg_id: str, fg_id: str, x: str, y: str, id: str):
   #image_id = "_".join(id.split("_")[:-1])
@@ -75,8 +83,10 @@ def composite(bg_id: str, fg_id: str, x: str, y: str, id: str):
       with Image(filename=f'tmp/{fg_id}.png') as fg_image:
         bg_image.composite(fg_image, left=int(x), top=int(y))          
         bg_image.save(filename=f'docs/3_{id}.png')
+        cp_image_size = {'state': "Composite image created successfully",
+                         'width': bg_image.width, 'height': bg_image.height}
 
-  return "Create composite image successfully"
+  return json.dumps(cp_image_size)
 
 def encode_image(image_path):
   with open(image_path, "rb") as image_file:
