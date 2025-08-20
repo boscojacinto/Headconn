@@ -30,6 +30,20 @@ def remove_bg(id: str):
 
   return json.dumps(bgr_image_size)
 
+def crop_image(id: str, x: str, y: str, width: str, height: str):
+  image_id = "_".join(id.split("_")[:-1]) 
+  print(f"crop_image(image_id):{image_id}")
+
+  image_path = f'tmp/{image_id}.png'
+
+  with Image(filename=image_path) as img:
+    img.background_color = Color('transparent')
+    img.crop(left=int(x), top=int(y), width=int(width), height=int(height))
+    img.save(filename=f'tmp/{id}.png')
+    cr_image_size = {'state': "Cropped image successfully"}
+
+  return json.dumps(cr_image_size)
+
 def resize_image(id: str, width: str, height: str):
   image_id = "_".join(id.split("_")[:-1]) 
   print(f"resize_image(image_id):{image_id}")
@@ -122,6 +136,37 @@ tool_definitions = [
       },
       "required": ["id"],      
     }
+  ),
+
+  tool(
+    name="crop_image",
+    description="Crop a given image",
+    parameters={
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The label of the image",
+        }, 
+        "x": {
+          "type": "string",
+          "description": "The offset in pixels from left on the x-axis",
+        },
+        "y": {
+          "type": "string",
+          "description": "The offset in pixels from top on the y-axis",
+        },                             
+        "width": {
+          "type": "string",
+          "description": "The desired width in pixels to be cropped",
+        },
+        "height": {
+          "type": "string",
+          "description": "The desired height in pixels to be cropped",
+        }       
+      },
+      "required": ["id", "x", "y", "width", "height"],
+    },
   ),
 
   tool(

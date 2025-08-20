@@ -6,6 +6,7 @@ from typing import Literal
 from dotenv import load_dotenv
 from tools.image_tool import (
   remove_bg,
+  crop_image,
   resize_image,
   rotate_image,
   shear_image,
@@ -26,6 +27,7 @@ load_dotenv()
 
 tools_map = {
     "remove_bg": remove_bg,
+    "crop_image": crop_image,
     "resize_image": resize_image,
     "rotate_image": rotate_image,
     "shear_image": shear_image,
