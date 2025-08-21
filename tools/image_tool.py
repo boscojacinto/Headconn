@@ -5,6 +5,7 @@ from rembg import remove
 from wand.image import Image
 from wand.display import display
 from wand.color import Color
+from wand.drawing import Drawing
 
 from xai_sdk.chat import tool
 
@@ -88,6 +89,25 @@ def shear_image(id: str, x: str, y: str):
     sh_image_size = {'state': "Sheared image successfully"}
 
   return json.dumps(sh_image_size)
+
+def draw_image(id: str, x: str, y: str, text: str,
+               color: str, size: str):
+  image_id = "_".join(id.split("_")[:-1]) 
+  print(f"draw_image(image_id):{image_id}")
+
+  image_path = f'tmp/{image_id}.png'
+
+  with Image(filename=image_path) as img:
+      with Drawing() as draw:
+          draw.font = 'Times New Roman'
+          draw.font_size = int(size)
+          draw.fill_color = Color(color)
+          draw.text(int(x), int(y), text)
+          draw(img)
+      img.save(filename=f'tmp/{id}.png')
+      dr_image_size = {'state': "Drew on image successfully"}
+
+  return json.dumps(dr_image_size)
 
 def composite(bg_id: str, fg_id: str, x: str, y: str, id: str):
   #image_id = "_".join(id.split("_")[:-1])
@@ -231,6 +251,41 @@ tool_definitions = [
         },        
       },
       "required": ["id", "x", "y"],
+    },
+  ),
+
+  tool(
+    name="draw_image",
+    description="Draw text on a given image",
+    parameters={
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The label of the image",
+        }, 
+        "x": {
+          "type": "string",
+          "description": "The offset in pixels from left on the x-axis",
+        },
+        "y": {
+          "type": "string",
+          "description": "The offset in pixels from top on the y-axis",
+        },                             
+        "text": {
+          "type": "string",
+          "description": "The desired text to draw",
+        },
+        "color": {
+          "type": "string",
+          "description": "The desired color of the text, e.g 'red', 'green', 'blue', etc.",
+        },        
+        "size": {
+          "type": "string",
+          "description": "The desired font size of the text to draw",
+        }       
+      },
+      "required": ["id", "x", "y", "text", "color", "size"],
     },
   ),
 

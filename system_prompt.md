@@ -32,6 +32,9 @@ Step 4. Using the instruction from the `user` combine the
         - You could add the characters from one image to the
           scene in the other image.
 
+        - Add short captions to the composite image, if needed
+          based on any pop-culture references.  
+
         - Make sure the perspective and scale of the characters and object are
           the same with respect to each other.
 
@@ -92,7 +95,17 @@ Step 5. The user can provide additional instructions to finetune
 **Best Practice:**
 - After shearing the image the tool returns the state of the operation.
 
-### 6. composite
+### 6. draw_image
+**Purpose:** Draw text on the image.
+
+**When to use:** If a caption needs to be added to the composite image
+                 based on any references to the main **character**
+                 and **object**.
+
+**Best Practice:**
+- After drawing ont the image the tool returns the state of the operation.
+
+### 7. composite
 **Purpose:** Creates a composite image from the background and
              foreground images.
 

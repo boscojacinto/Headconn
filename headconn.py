@@ -10,6 +10,7 @@ from tools.image_tool import (
   resize_image,
   rotate_image,
   shear_image,
+  draw_image,
   composite,
   encode_image,
   prepare_images,
@@ -31,6 +32,7 @@ tools_map = {
     "resize_image": resize_image,
     "rotate_image": rotate_image,
     "shear_image": shear_image,
+    "draw_image": draw_image,
     "composite": composite,
 }
 
@@ -56,7 +58,7 @@ chat.append(
         "`{ \"first_image\": \"1\", \"second_image\": \"2\"}`",
         image(image_url=f"data:image/jpeg;base64,{first_image_b64}", detail="low"),
         image(image_url=f"data:image/jpeg;base64,{second_image_b64}", detail="low"),
-        "Superimpose harry potter and ron from the first image onto the windscreen of the tesla in the second image."
+        "The two different house elf's."
     )
 )
 
@@ -70,8 +72,8 @@ composite_done = False
 
 while(True):
   print(f"Response:{response.content}")
-  print(f"Tool calls:{response.tool_calls}")
-  print(f"Usage:{response.usage}")
+  #print(f"Tool calls:{response.tool_calls}")
+  #print(f"Usage:{response.usage}")
 
   if response.tool_calls:
     for tool_call in response.tool_calls:
@@ -115,7 +117,7 @@ while(True):
     time.sleep(1)
     if composite_done == True:
       composite_done = False
-      finetune_inst = input("Enter any finetuning instructions")
+      finetune_inst = input("\nEnter any finetuning instructions:\n")
       if finetune_inst != "":
         image_1_id = "1"
         image_2_id = "2"
