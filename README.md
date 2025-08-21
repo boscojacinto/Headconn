@@ -6,7 +6,7 @@ An image mashup that can be given to Grok Imagine to then create a fantasy versi
 
 ![second image](docs/2.jpg)
 
-![mashup image](docs/3.jpg)
+![mashup image](docs/3.png)
 
 ![gork imagine video](docs/harry_and_ron_in_a_tesla_roadster.gif)
 
