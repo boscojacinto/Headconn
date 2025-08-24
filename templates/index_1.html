@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Processing App</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .image-box {
+      width: 640px;
+      height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background-color: #f3f4f6;
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .image-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .image-box:hover {
+      background-color: #e5e7eb;
+    }
+  </style>  
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    console.log("React is running");
+
+    function App() {
+      const [image1, setImage1] = React.useState(null);
+      const [image2, setImage2] = React.useState(null);
+      const [image3, setImage3] = React.useState(null);
+      const [finetuneInst, setFinetuneInst] = React.useState('');
+      const [loading, setLoading] = React.useState(false);
+      const [error, setError] = React.useState(null);
+      const image1Ref = React.useRef(null);
+      const image2Ref = React.useRef(null);
+
+      const handleImageChange = (e, setImage) => {
+        console.log("handleImageChange")
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => setImage(reader.result);
+          reader.onerror = () => setError('Failed to read file');
+          reader.readAsDataURL(file);
+        }
+      };
+
+      const handleSubmit = async () => {
+        if (!image1 || !image2) {
+          setError('Please upload both images');
+          return;
+        }
+        setLoading(true);
+        setError(null);
+
+        const formData = new FormData();
+        formData.append('image1', image1Ref.current.files[0]);
+        formData.append('image2', image2Ref.current.files[0]);
+        formData.append('finetune', finetuneInst);
+
+        console.log("handleSubmit")
+
+        const response = await fetch('/api/process', {
+          method: 'POST',
+          body: formData,
+        })
+        .then((response) => {
+          console.log("response:", response)
+          if(!response.ok) {
+            throw new Error('Failed to generate image.')
+          }
+          return response.blob();
+        })
+        .then((blob) => {
+          const imageUrl = URL.createObjectURL(blob);
+          setLoading(false);
+          setImage3(imageUrl);
+        })
+        .catch((err) => {
+          console.log("ERROR:", err)
+          setError('Failed to process images');
+        });
+      };
+
+      return (
+        <div className="w-full md:w-[60%] mx-auto p-4 flex flex-col min-h-screen">
+          <h1 title="Note: Use images which have a similar scene for best results" className="text-3xl font-bold mb-2 text-center">Headconn</h1>
+          <h2 className="text-xl text-gray-500 mb-6 italic text-center"> create mash-ups of your two favourite things</h2>          
+
+          {/* Image Upload Section */}
+          <div className="flex flex-col md:flex-row justify-center mb-6">
+            <div className="w-full max-w-[300px] mx-auto md:mx-0 md:flex-1">
+              <div
+                className="image-box mx-auto"
+                onClick={() => document.getElementById('firstImageInput').click()}
+              >
+                {image1 ? (
+                  <img src={image1} alt="First" />
+                ) : (
+                  <span className="text-gray-500">Click to upload first image</span>
+                )}
+              </div>
+              <input
+                id="firstImageInput"
+                type="file"
+                accept="image/*"
+                ref={image1Ref}
+                onChange={(e) => handleImageChange(e, setImage1)}
+                className="hidden"
+              />
+            </div>
+            <div className="w-full max-w-[300px] mx-auto md:mx-0 md:flex-1 mt-4 md:mt-0 md:ml-0">
+              <div
+                className="image-box mx-auto"
+                onClick={() => document.getElementById('secondImageInput').click()}
+              >
+                {image2 ? (
+                  <img src={image2} alt="Second" />
+                ) : (
+                  <span className="text-gray-500">Click to upload second image</span>
+                )}
+              </div>
+              <input
+                id="secondImageInput"
+                type="file"
+                accept="image/*"
+                ref={image2Ref}
+                onChange={(e) => handleImageChange(e, setImage2)}
+                className="hidden"
+              />
+            </div>
+          </div>
+          <div className="mb-4 flex flex-col items-center">
+            <label className="block text-xl mb-2 text-center">Instructions</label>
+            <input
+              type="text"
+              value={finetuneInst}
+              onChange={(e) => setFinetuneInst(e.target.value)}
+              className="border p-2 w-2/5"
+              placeholder="e.g.   Add harry from the first image to the car in the second image"
+            />
+          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-400 w-full md:w-auto self-center"
+          >
+            {loading ? 'Processing...' : 'Submit'}
+          </button>
+          {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+          {image3 && (
+            <div className="mt-auto mb-6 flex justify-center">
+              <div className="w-full max-w-[300px] h-[200px] bg-gray-100 border-2 rounded shadow flex items-center justify-center">
+                <img src={image3} alt="Result" className="max-w-full max-h-full object-contain" />
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

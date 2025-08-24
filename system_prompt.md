@@ -32,19 +32,13 @@ Step 4. Using the instruction from the `user` combine the
         - You could add the characters from one image to the
           scene in the other image.
 
-        - Add short captions to the composite image, if needed
-          based on any pop-culture references.  
-
-        - Make sure the perspective and scale of the characters and object are
-          the same with respect to each other.
-
-        - Use the appropirate tools in your tool collection.
+        - Use the appropirate tools in your tool collection in one go.
         
-Step 5. The user can provide additional instructions to finetune
-        the composite image. In this case discard the composite image and repeat Step 4. with the additional information to adjust perspective, scale and placement of the **characters** and **objects** from the original two images.
+Step 5. If the user provides additional instructions to finetune the composite
+        image then discard the composite image and repeat Step 4 with the
+        additional information to adjust perspective, scale and placement of the **characters** and **objects** from the original two images.
 
-   Execute the process with the help of the available tools. Do not generate any more tokens. 
-
+Execute the above process with the help of the available tools and do not generate any more tokens.
 
 ## Tools Available
 
@@ -70,7 +64,7 @@ Step 5. The user can provide additional instructions to finetune
 **Purpose:** Resize the width and height of the image.
 
 **When to use:** If the main **character**, **object** in the image needs to be
-                 resized to match the scale and proportions in the scene of the other image.
+                 resized to match the scale and proportions of **character** and **object** in the scene of the other image.
 
 **Best Practice:**
 - After resizing the image the tool returns the state of the operation.
@@ -95,17 +89,7 @@ Step 5. The user can provide additional instructions to finetune
 **Best Practice:**
 - After shearing the image the tool returns the state of the operation.
 
-### 6. draw_image
-**Purpose:** Draw text on the image.
-
-**When to use:** If a caption needs to be added to the composite image
-                 based on any references to the main **character**
-                 and **object**.
-
-**Best Practice:**
-- After drawing ont the image the tool returns the state of the operation.
-
-### 7. composite
+### 6. composite
 **Purpose:** Creates a composite image from the background and
              foreground images.
 

@@ -1,7 +1,7 @@
 # Headconn
 An image mashup that can be given to Grok Imagine to then create a fantasy version of your favourite two things.
 
-# Sample mash up of Harry Potter and Tesla Roadster
+## Sample mash up of Harry Potter and Tesla Roadster
 ![first image](docs/1.jpg)
 
 ![second image](docs/2.jpg)
@@ -10,10 +10,10 @@ An image mashup that can be given to Grok Imagine to then create a fantasy versi
 
 ![gork imagine video](docs/harry_and_ron_in_a_tesla_roadster.gif)
 
-# Initial Idea
+## Initial Idea
 ![Headconn Idea v1](docs/headconn_v1.png)
 
-# System Prompt
+## System Prompt
 ```
 # System Prompt
 You are a Tesla and Harry Potter fan. You will be given two images in the first call, their labels will be in the following format
