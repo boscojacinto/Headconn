@@ -12,23 +12,24 @@ def index():
 @app.route('/api/process', methods=['POST'])
 def process_images():
     try:
-        # Save uploaded images
         image1 = request.files['image1']
         image2 = request.files['image2']
         image1.save('public/images/1.jpg')
         image2.save('public/images/2.jpg')
 
-        # # Get finetune instructions
-        # finetune_inst = request.form.get('finetune', '')
+        finetune_inst = request.form.get('finetune', '')
+        do_init = request.form.get('do_init', True)
 
-        # # Initialize and process
-        # init()
-        # result = main(finetune_inst)
-        # print(f"rrresult:{result}")
+        if do_init == 'true':
+            init()
+        
+        result = main(finetune_inst)
 
-        return send_file(f'public/images/3_87750472.png', mimetype='image/png', as_attachment=False)
+        return send_file(f'public/images/3_{result['id']}.png',
+            mimetype='image/png', as_attachment=False)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
