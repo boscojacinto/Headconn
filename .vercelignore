@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+venv/
+.venv
+*.egg-info/
+*.log
+node_modules/
+.env
+data/
+tests/
+docs/
+public/
+tmp/
+tools/
