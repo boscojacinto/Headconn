@@ -101,3 +101,7 @@ def main(finetune_inst=""):
         else:
             break
     return None
+
+if __name__ == '__main__':
+    init()
+    main(finetune_inst="Create a mashup by adding the IronMan mask from the second image over the man's face in the first image.")
