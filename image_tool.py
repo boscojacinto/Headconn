@@ -21,7 +21,7 @@ def remove_bg(id: str):
     with open(f'tmp/{id}.png', 'wb') as o:
         o.write(bgr_image_data)
     with Image(filename=f'tmp/{id}.png') as img:
-        img.background_color = Color('transparent')
+        #img.background_color = Color('transparent')
         bgr_image_size = {'state': "Removed background successfully"}
     return json.dumps(bgr_image_size)
 
@@ -43,7 +43,7 @@ def resize_image(id: str, width: str, height: str):
     w_scale = (int(float(width)) / 100)
     h_scale = (int(float(height)) / 100)
     with Image(filename=image_path) as img:
-        img.background_color = Color('transparent')
+        #img.background_color = Color('transparent')
         img.resize(int(img.width * w_scale), int(img.height * h_scale))
         img.save(filename=f'tmp/{id}.png')
         rs_image_size = {'state': "Resized image successfully"}
@@ -54,7 +54,7 @@ def rotate_image(id: str, degree: str):
     print(f"rotate_image(image_id):{image_id}")
     image_path = f'tmp/{image_id}.png'
     with Image(filename=image_path) as img:
-        img.background_color = Color('transparent')
+        #img.background_color = Color('transparent')
         img.rotate(int(degree))
         img.save(filename=f'tmp/{id}.png')
         rt_image_size = {'state': "Rotated image successfully"}
@@ -65,7 +65,7 @@ def shear_image(id: str, x: str, y: str):
     print(f"shear_image(image_id):{image_id}")
     image_path = f'tmp/{image_id}.png'
     with Image(filename=image_path) as img:
-        img.background_color = Color('transparent')
+        #img.background_color = Color('transparent')
         img.shear(background='none', x=float(x), y=float(y))
         img.save(filename=f'tmp/{id}.png')
         sh_image_size = {'state': "Sheared image successfully"}

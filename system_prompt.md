@@ -30,21 +30,18 @@ Step 4. Using the instructions from the `user` combine the
         **characters** and **objects** in one composite image.
         Always reveal your reasoning behind this step.
         
-        - You could add the **characters** from one image to the
-          scene in the other image, if appropriate.
+        - You can isolate the **characters** or **objects** from in an image
+          by cropping the **characters** or **objects** first and then removing the background. Always crop before removing background.
 
-        - You could overlay the heads of **characters** from one image
-          to the **characters** in the other image, if appropriate.
+        - You can overlay the cropped **characters** or **objects** 
+          on top of the **characters** or **objects** in the other image.
 
-        - If you need to remove backgound, first crop the **characters**
-          and **objects** and then remove the background.
+        - You can estimate the position where the cropped **characters** 
+          or **objects** can be placed over in the other image based on the height and width of the cropped image.
 
-        - Do your best at estimating the overlay positions based on the
-          height and width of the background image and assuming the
-          cropped **character** and **object** will have a transparent
-          background.
-
-        - Use the appropriate tools in your tool collection in one go.          
+        - Use the appropriate tools in your tool collection in one go.
+          Each tool will return state of the operation. Take into 
+          account the result of the previous too before applying another tool.
         
 Step 5. If the user provides additional instructions to finetune the composite
         image then discard the composite image and repeat Step 4 with the
@@ -57,18 +54,15 @@ Execute the above process with the help of the available tools and do not genera
 ### 1. remove_bg
 **Purpose:** Remove the background from the image.
 
-**When to use:** If the main **character**, **object** in the image needs to be
-                 cropped or if the background in the image needs to be removed.
+**When to use:** If the background in the image needs to be removed.
 
 **Best Practice:**
 - After removing the background the tool returns the state of the operation.
-- The tool replaces the backgound with a transparent background while keeping the size of the image the same, so take into consideration the transparent area.
 
 ### 2. crop_image
 **Purpose:** Crop the image.
 
-**When to use:** If the main **character**, **object** in the image needs to be
-                 isolated or cropped for use in the scene of the other image.
+**When to use:** If a part of the image needs to be cropped.
 
 **Best Practice:**
 - After cropping the image the tool returns the state of the operation.
@@ -76,8 +70,7 @@ Execute the above process with the help of the available tools and do not genera
 ### 3. resize_image
 **Purpose:** Resize the width and height of the image.
 
-**When to use:** If the main **character**, **object** in the image needs to be
-                 resized to match the scale and proportions of **character** and **object** in the scene of the other image.
+**When to use:** If the image needs to be resized.
 
 **Best Practice:**
 - After resizing the image the tool returns the state of the operation.
@@ -85,9 +78,7 @@ Execute the above process with the help of the available tools and do not genera
 ### 4. rotate_image
 **Purpose:** Rotate the image by a certain angle.
 
-**When to use:** If the main **character**, **object** in the image needs to be
-                 rotated to match the orientation of the **character** and
-                 **object** in the other image.
+**When to use:** If the image needs to be rotated.
 
 **Best Practice:**
 - After rotating the image the tool returns the state of the operation.
@@ -95,9 +86,7 @@ Execute the above process with the help of the available tools and do not genera
 ### 5. shear_image
 **Purpose:** Shear the image on the x-axis and y-axis.
 
-**When to use:** If the main **character**, **object** in the image needs to be
-                 sheared to match the perspective of the
-                 **character** and **object** in the other image.
+**When to use:** If the image needs to be sheared.
 
 **Best Practice:**
 - After shearing the image the tool returns the state of the operation.
