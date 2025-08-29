@@ -36,15 +36,15 @@ def init():
         "composite": composite,
     }
     work_dir = create_workdir()
-    with open('system_prompt.md', 'r', encoding='utf-8') as file:
-        system_prompt = file.read()
+    with open('compose_prompt.md', 'r', encoding='utf-8') as file:
+        compose_prompt = file.read()
     client = Client(api_key=os.getenv("XAI_API_KEY"), timeout=64000)
     chat = client.chat.create(
         model="grok-code-fast-1",
         tools=tool_definitions,
         tool_choice="auto",
     )
-    chat.append(system(system_prompt))
+    chat.append(system(compose_prompt))
 
 def main(finetune_inst=""):
     prepare_images()
