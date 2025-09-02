@@ -10,8 +10,8 @@ An image mashup that can be given to Grok Imagine to then create a fantasy versi
 
 ![gork imagine video](docs/harry_and_ron_in_a_tesla_roadster.gif)
 
-## Initial Idea
-![Headconn Idea v1](docs/headconn_v1.png)
+## Idea
+![Headconn Idea v2](docs/headconn_v2.png)
 
 ## System Prompt
 ```
