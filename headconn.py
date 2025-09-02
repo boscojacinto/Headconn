@@ -39,7 +39,11 @@ def init():
     with open('system_prompt.md', 'r', encoding='utf-8') as file:
         system_prompt = file.read()
     client = Client(api_key=os.getenv("XAI_API_KEY"), timeout=64000)
-    chat = client.chat.create(model="grok-4", tools=tool_definitions, tool_choice="auto")
+    chat = client.chat.create(
+        model="grok-code-fast-1",
+        tools=tool_definitions,
+        tool_choice="auto",
+    )
     chat.append(system(system_prompt))
 
 def main(finetune_inst=""):
@@ -104,4 +108,4 @@ def main(finetune_inst=""):
 
 if __name__ == '__main__':
     init()
-    main(finetune_inst="Create a mashup by adding the IronMan mask from the second image over the man's face in the first image.")
+    main(finetune_inst="Add Harry and Ron inside the tesla.")
