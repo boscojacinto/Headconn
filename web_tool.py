@@ -7,7 +7,7 @@ url = "https://google.serper.dev/images"
 
 def download_image(url: str, id: str):
     headers = {
-        'User-Agent': 'curl/7.68.0',
+        'User-Agent': 'curl/7.68.0 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Accept': '*/*',
     }
 
@@ -31,9 +31,12 @@ def image_search(id: str, query: str):
 
     response = requests.request("POST", url, headers=headers, data=payload)
     results = json.loads(response.text)
-    imageUrl = results['images'][0]['imageUrl']
-    print(imageUrl)
-    download_image(url=imageUrl, id=f'tmp/{id}.png')
+    images = results['images']
+    for i, image in enumerate(images):
+        image_url = image['imageUrl']
+        print(f"i: {i}, image_url:{image_url}")
+        download_image(url=image_url, id=f'tmp/{id}_{i}.png')
+        break
 
 tool_definitions = [
     tool(
