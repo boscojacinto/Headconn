@@ -46,21 +46,28 @@ class Headconn:
         while True:
             with self.run_thread_lock:
                 prompt = self.prompt_queue.get(block=True)
-                print(f"self.state_record:{self.state_record[-1]}")
-                if self.state_record[-1] == 'idle' \
-                   and prompt['type'] == 'imagine':
-                    self.imagine_client.run(prompt=prompt['value'])
-                    self.prompt_queue.task_done()
-                    time.sleep(3)
-                    if self._fine_tune(prompt['type']) is not None:
-                        self.imagine_client.run(prompt=prompt['value'])
+                if self.state_record[-1] == 'idle' and prompt['type'] == 'imagine':
+                    if self.imagine_client.run(prompt=prompt['value']) is False:
+                        self.state_record.append({'agent': prompt['type'], 'execution': 'failed'})
                     else:
-                        print("Append imagine")
-                        self.prompt_queue.put({"type": 'reflect', 'value' : 'test'})
-                        self.state_record.append(prompt['type'])
+                        if self._fine_tune(prompt['type']) is not None:
+                            self.imagine_client.fine_tune(prompt=prompt['value'])
+                        else:
+                            if all(map(lambda x: x['complete'] if x['complete'] is True else False, self.imagine_client.results)) is False:
+                               self.state_record.append({'agent': prompt['type'], 'execution': 'failed'}) 
+                            else:
+                                for result in self.imagine_client.results:
+                                    print(f"Adding reflect prompt:{result['output']['query']}")
+                                    self.prompt_queue.put({"type": 'reflect', 'value' : {
+                                        'image_path': result['output']['image_file'], 'prompt': result['output']['query']}})
+                                self.state_record.append(prompt['type'])
+
+                    self.prompt_queue.task_done()
+
                 elif self.state_record[-1] == 'imagine':
-                    #self.reflect_client.run(prompt=prompt['value'])
-                    #self.prompt_queue.task_done()
+                    print(f"REFLECT:{prompt['value']['prompt']}")
+                    self.reflect_client.run(image_path=prompt['value']['image_path'], prompt=prompt['value']['prompt'])
+                    self.prompt_queue.task_done()
                     time.sleep(3)
                 else:
                     time.sleep(1)
@@ -87,5 +94,5 @@ if __name__ == '__main__':
     hc = Headconn()
     imagine_prompt = input("Enter imagine prompt: ")
     hc.imagine_prompt.append(imagine_prompt)
-    hc.prompt_queue.put({"type": 'imagine', 'value' : hc.imagine_prompt})
+    hc.prompt_queue.put({"type": 'imagine', 'value' : imagine_prompt})
     hc.start()

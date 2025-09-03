@@ -42,7 +42,7 @@ def image_search(id: str, query: str) -> str:
         result = download_image(url=image_url, id=f'tmp/IS_{id}_{i}.png')
         break
 
-    return result
+    return result, i
 
 tool_definitions = [
     tool(
