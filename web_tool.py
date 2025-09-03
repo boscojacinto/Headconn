@@ -5,7 +5,7 @@ from xai_sdk.chat import tool
 
 url = "https://google.serper.dev/images"
 
-def download_image(url: str, id: str):
+def download_image(url: str, id: str) -> str:
     headers = {
         'User-Agent': 'curl/7.68.0 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Accept': '*/*',
@@ -17,26 +17,32 @@ def download_image(url: str, id: str):
             with Image(blob=response.content) as img:
                 img.save(filename=id)
             print(f"Image saved successfully as {id}")
+            return 'Successfully downloaded the image.'
         else:
             print(f"Failed to download image. Status code: {response.status_code}")
+            return 'Failed to download image'
     except Exception as e:
         print(f"An error occurred: {e}")
 
-def image_search(id: str, query: str):
+def image_search(id: str, query: str) -> str:
     payload = json.dumps({"q": query})
     headers = {
       'X-API-KEY': '0b847742a2edfecd0db86cdc6c1a82ebb18115d1',
       'Content-Type': 'application/json'
     }
 
+    result = 'Failed to download image'
     response = requests.request("POST", url, headers=headers, data=payload)
-    results = json.loads(response.text)
-    images = results['images']
+    response = json.loads(response.text)
+    images = response['images']
+
     for i, image in enumerate(images):
         image_url = image['imageUrl']
         print(f"i: {i}, image_url:{image_url}")
-        download_image(url=image_url, id=f'tmp/{id}_{i}.png')
+        result = download_image(url=image_url, id=f'tmp/IS_{id}_{i}.png')
         break
+
+    return result
 
 tool_definitions = [
     tool(

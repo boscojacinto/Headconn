@@ -18,14 +18,14 @@ class Imagine:
             "image_search": image_search,
         }
         self.system_prompt = None
-        self.work_dir = self.create_workdir()
+        self.work_dir = self._create_workdir()
         self._initialize()
 
     def _create_workdir(self) -> Path:
         os.makedirs('tmp', exist_ok=True)
         return Path('tmp')
 
-    def initialize(self) -> None:
+    def _initialize(self) -> None:
         load_dotenv()
         
         with open('imagine_prompt.md', 'r', encoding='utf-8') as file:
@@ -39,7 +39,7 @@ class Imagine:
         )
         self.chat.append(system(self.system_prompt))
 
-    def process_response(self, response) -> None:
+    def _process_response(self, response) -> None:
         print(f"Response: {response.content}")
         print(f"Tool calls: {response.tool_calls}")
         print(f"Usage: {response.usage}")
@@ -58,7 +58,6 @@ class Imagine:
                 
                 self.chat.append(tool_result(result))
                 time.sleep(1)
-                return None
 
         return None
 
@@ -67,8 +66,7 @@ class Imagine:
         response = self.chat.sample()
         self.chat.append(response)
         
-        self.process_response(response)
-        time.sleep(1)
+        self._process_response(response)
         return None
 
     def fine_tune(self, instructions):
@@ -77,7 +75,6 @@ class Imagine:
 
 def main():
     imagine = Imagine()
-    imagine.initialize()
     imagine.run(scene_prompt="Harry Potter and Ron Weasley in a flying Tesla Roadster.")
     time.sleep(3)
     sys.stdin.flush()

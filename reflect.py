@@ -28,7 +28,7 @@ class Reflect:
         self.work_dir = self._create_workdir()
         self.client = Client(api_key=os.getenv("XAI_API_KEY"), timeout=64000)
         self.chat = self.client.chat.create(model="grok-4")
-        self.chat.append(system(discern_prompt))
+        self.chat.append(system(self.system_prompt))
 
     def run(self, image_path: str, description: str = "") -> None:
         image_b64 = encode_image(str(self.work_dir / image_path))

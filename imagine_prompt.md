@@ -21,3 +21,5 @@ Execute the above process with the help of the available tools and output your r
 
 **When to use:** If an image has to be searched.
 
+**Best Practice:** The tool will return the status of the image search. Either success of failure.
+
