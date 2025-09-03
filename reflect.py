@@ -30,12 +30,12 @@ class Reflect:
         self.chat = self.client.chat.create(model="grok-4")
         self.chat.append(system(self.system_prompt))
 
-    def run(self, image_path: str, description: str = "") -> None:
+    def run(self, image_path: str, prompt: str = "") -> None:
         image_b64 = encode_image(str(self.work_dir / image_path))
         self.chat.append(
             user(
                 image(image_url=f"data:image/jpeg;base64,{image_b64}", detail="low"),
-                description
+                prompt
             )
         )
         response = self.chat.sample()
@@ -44,4 +44,4 @@ class Reflect:
 
 if __name__ == '__main__':
     reflect = Reflect()
-    reflect.run(image_path='test_10.jpeg', description="Tesla Roadster parked on the street.")
+    reflect.run(image_path='test_10.jpeg', prompt="Tesla Roadster parked on the street.")

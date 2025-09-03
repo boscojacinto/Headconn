@@ -61,21 +61,21 @@ class Imagine:
 
         return None
 
-    def run(self, scene_prompt=""):
-        self.chat.append(user(scene_prompt))    
-        response = self.chat.sample()
-        self.chat.append(response)
+    def run(self, prompt=""):
+        # self.chat.append(user(prompt))    
+        # response = self.chat.sample()
+        # self.chat.append(response)
         
-        self._process_response(response)
+        # self._process_response(response)
         return None
 
     def fine_tune(self, instructions):
         if instructions:
-            self.run(scene_prompt=instructions)
+            self.run(prompt=instructions)
 
 def main():
     imagine = Imagine()
-    imagine.run(scene_prompt="Harry Potter and Ron Weasley in a flying Tesla Roadster.")
+    imagine.run(prompt="Harry Potter and Ron Weasley in a flying Tesla Roadster.")
     time.sleep(3)
     sys.stdin.flush()
 
