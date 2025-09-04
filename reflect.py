@@ -31,7 +31,7 @@ class Reflect:
         self.chat.append(system(self.system_prompt))
 
     def run(self, image_path: str, prompt: str = "") -> None:
-        image_b64 = encode_image(str(self.work_dir / image_path))
+        image_b64 = encode_image(str(self.work_dir / image_path) + '.png')
         self.chat.append(
             user(
                 image(image_url=f"data:image/jpeg;base64,{image_b64}", detail="low"),
@@ -39,8 +39,6 @@ class Reflect:
             )
         )
         response = self.chat.sample()
-        print(f"Response:{response.content}")
-        print(f"Usage:{response.usage}")
 
 if __name__ == '__main__':
     reflect = Reflect()

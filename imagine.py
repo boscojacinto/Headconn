@@ -42,9 +42,6 @@ class Imagine:
         self.chat.append(system(self.system_prompt))
 
     def _process_response(self, response) -> None:
-        print(f"Response: {response.content}")
-        print(f"Tool calls: {response.tool_calls}")
-        print(f"Usage: {response.usage}")
         self.results = []
         query = ""
         image_file = ""
@@ -57,13 +54,11 @@ class Imagine:
                 
                 if function_name == "image_search":
                     query = function_args['query']
-                    print(f"Query: {query}")
                 
                 function_args['id'] = tool_call.id.split("_")[1]
                 result, image_id = self.tools_map[function_name](**function_args)
-                print(f"Result: {result}")
                 if result == 'Successfully downloaded the image.':
-                    image_file = f'IS_{function_args['id']}_{image_id}.png'
+                    image_file = f'IS_{function_args['id']}_{image_id}'
                     self.results.append({'complete': True, 'output': {'query': query, 'image_file': image_file}})
                 else:
                     self.results.append({'complete': True})
@@ -96,7 +91,6 @@ def main():
     while True:
         sys.stdin.flush()
         instructions = input("Enter fine tuning instructions: ")
-        print(f"instructions: {instructions}")
         imagine.fine_tune(instructions)
 
 if __name__ == '__main__':
