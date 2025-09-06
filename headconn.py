@@ -61,33 +61,42 @@ class Headconn:
                             else:
                                 for result in self.imagine_client.results:
                                     self.prompt_queue.put({"type": 'reflect', 'value' : {
-                                        'image_path': result['output']['image_file'], 'prompt': result['output']['query']}})
-                                self.state_record.append(prompt['type'])
+                                        'image_path': result['output']['image_file'],
+                                        'image_count': result['output']['image_count'],
+                                         'prompt': result['output']['query']}})
+                                self.state_record.append({'agent': prompt['type'], 'execution': 'success'})
 
                     self.prompt_queue.task_done()
 
-                elif self.state_record[-1] == 'imagine' or self.state_record[-1] == 'reflect':
+                elif self.state_record[-1]['agent'] == 'imagine' or self.state_record[-1]['agent'] == 'reflect' and self.state_record[-1]['execution'] == 'success':
                     if self.prompt_queue.qsize() == 0 or self.prompt_queue.qsize() == 1:
-                        self.reflect_client.run(image_path=prompt['value']['image_path'], prompt=prompt['value']['prompt'])
-                        self.images.append(prompt['value']['image_path'])
+                        self.reflect_client.run(image_path=prompt['value']['image_path'],
+                                                image_count=prompt['value']['image_count'],
+                                                prompt=prompt['value']['prompt'])
+                        image_id = self.reflect_client.image_choice
+                        image_id = prompt['value']['image_path'] + '_' + str(image_id)
+                        self.images.append(image_id)
                         self.prompt_queue.task_done()
-                        self.state_record.append(prompt['type'])
+                        self.state_record.append({'agent': prompt['type'], 'execution': 'success'})
                         if self.prompt_queue.qsize() == 0:
                             if self.compose_client.run(first_image=self.images[0],
                                 second_image=self.images[1], prompt=self.imagine_prompt[0]) is True:
                                 self.prompt_queue.put({"type": 'compose', "complete": True,
                                     'value' : {'image_path': self.compose_client.images[0]}})
-                                self.state_record.append('compose')
+                                self.state_record.append({'agent': 'compose', 'execution': 'success'})
                             else:
                                 self.prompt_queue.put({"type": 'compose', "complete": False,
                                     'value' : {'image_path': self.compose_client.images[0]}})                                
-                                self.state_record.append('compose')
+                                self.state_record.append({'agent': 'compose', 'execution': 'failed'})
                     time.sleep(3)
-                elif self.state_record[-1] == 'compose':
+                elif self.state_record[-1]['agent'] == 'compose' and self.state_record[-1]['execution'] == 'success':
                     if prompt['complete'] == True:
                         print("Done.")
                     else:
                         print("Failed.")
+                    exit()
+                elif self.state_record[-1]['agent'] == 'compose' and self.state_record[-1]['execution'] == 'failed':
+                    print("Failed.")
                     exit()
                 else:
                     time.sleep(1)

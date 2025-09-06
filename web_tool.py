@@ -1,9 +1,12 @@
+import os
 import json
 import requests
+from dotenv import load_dotenv
 from wand.image import Image
 from xai_sdk.chat import tool
 
 url = "https://google.serper.dev/images"
+load_dotenv()
 
 def download_image(url: str, id: str) -> str:
     headers = {
@@ -12,37 +15,47 @@ def download_image(url: str, id: str) -> str:
     }
 
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=5)
         if response.status_code == 200:
             with Image(blob=response.content) as img:
                 img.save(filename=id)
             print(f"Image saved successfully as {id}")
-            return 'Successfully downloaded the image.'
+            return True
         else:
             print(f"Failed to download image. Status code: {response.status_code}")
-            return 'Failed to download image'
+            return False
     except Exception as e:
         print(f"An error occurred: {e}")
 
 def image_search(id: str, query: str) -> str:
     payload = json.dumps({"q": query})
     headers = {
-      'X-API-KEY': '0b847742a2edfecd0db86cdc6c1a82ebb18115d1',
+      'X-API-KEY': os.getenv("SERPERDEV_API_KEY"),
       'Content-Type': 'application/json'
     }
 
-    result = 'Failed to download image'
-    response = requests.request("POST", url, headers=headers, data=payload)
-    response = json.loads(response.text)
-    images = response['images']
+    count = 0
+    result = 'Failed to download images'
+    try:
+        response = requests.request("POST", url, headers=headers, data=payload, timeout=10)
+    except Exception as e:
+        print(f"Error: {e}")
+    else:    
+        response = json.loads(response.text)
+        images = response['images']
 
-    for i, image in enumerate(images):
-        image_url = image['imageUrl']
-        print(f"i: {i}, image_url:{image_url}")
-        result = download_image(url=image_url, id=f'tmp/IS_{id}_{i}.png')
-        break
+        for i, image in enumerate(images):
+            image_url = image['imageUrl']
+            print(f"i: {i}, image_url:{image_url}")
+            if download_image(url=image_url, id=f'tmp/IS_{id}_{count}.png') is True:
+                count = count + 1
+            if count == 2:
+                break
 
-    return result, i
+        if count > 1:
+            result = 'Successfully downloaded the images.'
+
+    return result, count
 
 tool_definitions = [
     tool(

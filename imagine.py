@@ -45,7 +45,7 @@ class Imagine:
         self.results = []
         query = ""
         image_file = ""
-        image_id = ""
+        image_count = 0
 
         if response.tool_calls:
             for tool_call in response.tool_calls:
@@ -56,12 +56,12 @@ class Imagine:
                     query = function_args['query']
                 
                 function_args['id'] = tool_call.id.split("_")[1]
-                result, image_id = self.tools_map[function_name](**function_args)
-                if result == 'Successfully downloaded the image.':
-                    image_file = f'IS_{function_args['id']}_{image_id}'
-                    self.results.append({'complete': True, 'output': {'query': query, 'image_file': image_file}})
+                result, image_count = self.tools_map[function_name](**function_args)
+                if result == 'Successfully downloaded the images.':
+                    image_file = f'IS_{function_args['id']}'
+                    self.results.append({'complete': True, 'output': {'query': query, 'image_file': image_file, 'image_count': image_count}})
                 else:
-                    self.results.append({'complete': True})
+                    self.results.append({'complete': False})
 
                 self.chat.append(tool_result(result))
                 time.sleep(1)
