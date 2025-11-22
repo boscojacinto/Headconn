@@ -32,7 +32,6 @@
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    console.log("React is running");
 
     function App() {
       const [image1, setImage1] = React.useState(null);
@@ -45,7 +44,6 @@
       const image2Ref = React.useRef(null);
 
       const handleImageChange = (e, setImage) => {
-        console.log("handleImageChange")
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
@@ -67,8 +65,7 @@
         formData.append('image1', image1Ref.current.files[0]);
         formData.append('image2', image2Ref.current.files[0]);
         formData.append('finetune', finetuneInst);
-
-        console.log("handleSubmit")
+        formData.append('do_init', image3 ? false : true);
 
         const response = await fetch('/api/process', {
           method: 'POST',
@@ -94,14 +91,15 @@
 
       return (
         <div className="w-full md:w-[60%] mx-auto p-4 flex flex-col min-h-screen">
-          <h1 title="Note: Use images which have a similar scene for best results" className="text-3xl font-bold mb-2 text-center">Headconn</h1>
-          <h2 className="text-xl text-gray-500 mb-6 italic text-center"> create mash-ups of your two favourite things</h2>          
+          <h1 title="Create a mash-up of two images" className="text-3xl font-bold mb-2 text-center">Headconn</h1>
+          <h2 className="text-xl text-gray-500 mb-6 italic text-center"> create a mash-up of your two favourite characters</h2>          
 
           {/* Image Upload Section */}
           <div className="flex flex-col md:flex-row justify-center mb-6">
             <div className="w-full max-w-[300px] mx-auto md:mx-0 md:flex-1">
               <div
                 className="image-box mx-auto"
+                title="Note: The AI can only use the tools its provided (remove background, crop, resize, rotate & shear), use images which have a similar scene for best results."
                 onClick={() => document.getElementById('firstImageInput').click()}
               >
                 {image1 ? (
@@ -122,6 +120,7 @@
             <div className="w-full max-w-[300px] mx-auto md:mx-0 md:flex-1 mt-4 md:mt-0 md:ml-0">
               <div
                 className="image-box mx-auto"
+                title="Note: The AI can only use the tools its provided (remove background, crop, resize, rotate & shear), use images which have a similar scene for best results."
                 onClick={() => document.getElementById('secondImageInput').click()}
               >
                 {image2 ? (
@@ -149,20 +148,21 @@
               className="border p-2 w-2/5"
               placeholder="e.g.   Add harry from the first image to the car in the second image"
             />
+            <p className="text-sm text-gray-500 mt-1 w-2/5 text-center">
+                Hint: Provide clear instructions, like combining elements from the either images or editing specific details. If results are not satisfactory provide fine tuning instructions. 
+              </p>            
           </div>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-400 w-full md:w-auto self-center"
+            className="bg-blue-500 text-white px-4 py-2 mb-6 rounded disabled:bg-gray-400 w-full md:w-auto self-center"
           >
             {loading ? 'Processing...' : 'Submit'}
           </button>
           {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
           {image3 && (
-            <div className="mt-auto mb-6 flex justify-center">
-              <div className="w-full max-w-[300px] h-[200px] bg-gray-100 border-2 rounded shadow flex items-center justify-center">
-                <img src={image3} alt="Result" className="max-w-full max-h-full object-contain" />
-              </div>
+            <div className="image-box mx-auto">
+              <img src={image3} alt="Result"/>
             </div>
           )}
         </div>

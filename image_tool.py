@@ -95,9 +95,21 @@ def composite(bg_id: str, fg_id: str, x: str, y: str, id: str):
             cp_image_size = {'state': "Composite image created successfully", 'width': bg_image.width, 'height': bg_image.height, 'id': id}
     return json.dumps(cp_image_size)
 
+from PIL import Image as PILImage
+from io import BytesIO
+
 def encode_image(image_path):
-    with open(image_path, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
+    with PILImage.open(image_path) as img:
+        # Resize if too large (max dimension 1024)
+        max_size = 1024
+        if max(img.size) > max_size:
+            ratio = max_size / max(img.size)
+            new_size = (int(img.width * ratio), int(img.height * ratio))
+            img = img.resize(new_size, PILImage.Resampling.LANCZOS)
+        
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        encoded_string = base64.b64encode(buffered.getvalue()).decode("utf-8")
     return encoded_string
 
 def prepare_images():
